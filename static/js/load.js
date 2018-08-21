@@ -1,0 +1,1 @@
+document.write("<script type='text/javascript' src='/static/js/main.js?"+new Date().getTime()+"'></script>");
