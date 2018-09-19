@@ -13,6 +13,19 @@ class Index(APIView):
         return Response('hello world')
 
 
+class VoteIndex(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, projid):
+        """
+        根据项目ID获取投票页面
+        :param request:
+        :param projid:
+        :return:
+        """
+        pass
+
+
 class VoteEventRetrive(RetrieveAPIView):
     permission_classes = (permissions.AllowAny, )
     lookup_field = 'id'
@@ -28,21 +41,22 @@ class VoteEventRetrive(RetrieveAPIView):
 
 
 class Voting(APIView):
+
     permission_classes = (permissions.AllowAny, )
 
     def post(self, request, format=None):
-        print(request.data)
+
         proj_id = request.data.get('projId', None)
         item_id = request.data.get('id', None)
         if not item_id:
-            return Response({'detail': '没有参数id'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': '没有参数'}, status=status.HTTP_400_BAD_REQUEST)
 
         if 'HTTP_X_FORWARDED_FOR' in request.META:
             ip = request.META['HTTP_X_FORWARDED_FOR']
         else:
             ip = request.META['REMOTE_ADDR']
         user_agent = request.META.get('HTTP_USER_AGENT', None)
-        platform = 1 if 'MicroMessenger' in user_agent else 2
+        platform = 1 if user_agent and 'MicroMessenger' in user_agent else 2
 
         try:
             proj = VoteEvent.objects.get(id=proj_id)

@@ -1,0 +1,41 @@
+.web {
+    /* height: 600px; */
+
+    /* .am-modal-content {
+      position: relative;
+      background-color: #00000000 !important;
+      border: 0;
+      border-radius: 4px;
+      background-clip: padding-box;
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
+      height: 600px;
+    }
+  
+    .am-modal-body {
+      padding: 0 !important;
+      font-size: 0 !important;
+      line-height: 1 !important;
+    } */
+    width: 350px;
+  }
+
+  .web .am-modal-content {
+    /* position: relative;
+    background-color: #00000000 !important;
+    border: 0;
+    border-radius: 4px;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important; */
+    /* width: 120%;  */
+  }
+
+  .web .am-modal-body {
+    /* padding: 0 !important;
+    font-size: 0 !important;
+    line-height: 1 !important; */
+    /* height: 100%; */
+  }
+
+  .web .am-modal-footer {
+
+  }

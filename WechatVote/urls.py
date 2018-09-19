@@ -23,12 +23,12 @@ from Vote.views import Index, VoteEventRetrive, Voting
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-auth/', obtain_jwt_token),
-    path('api-auth-verify/', verify_jwt_token),
-    path('api-auth-refresh/', refresh_jwt_token),
+    path('api-auth', obtain_jwt_token),
+    path('api-auth-verify', verify_jwt_token),
+    path('api-auth-refresh', refresh_jwt_token),
     path('', Index.as_view()),
-    path('retrive/<int:id>/', VoteEventRetrive.as_view()),
-    path('voting/', Voting.as_view()),
+    path('retrive/<int:id>', VoteEventRetrive.as_view()),
+    path('voting', Voting.as_view()),
 ]
 
 if settings.DEBUG:
