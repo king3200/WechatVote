@@ -20,7 +20,7 @@ class VotePage extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://127.0.0.1:8000/retrive/3')
+        axios.get('/retrive/3')
             .then(response => response.data)
             .then(data => {
                 this.setState({ projId: data['id'], voteName: data['name'], startDate: data['start_date'], endDate: data['end_date'], dataArray: data['items'] })
@@ -37,7 +37,7 @@ class VotePage extends Component {
     }
 
     onVote = () => {
-        axios.post('http://127.0.0.1:8000/voting', {projId: this.state.projId, id:this.state.modalValue.id})
+        axios.post('/voting', {projId: this.state.projId, id:this.state.modalValue.id})
             .then(response => response.status)
             .then(status => {
                 Modal.alert('投票成功');
@@ -50,6 +50,7 @@ class VotePage extends Component {
                 });
                 this.setState({ modalShow: false, dataArray: newArray})
             }).catch(err => {
+                this.setState({ modalShow: false});
                 Modal.alert('错误:' + err.response.data.detail);
             })
     }
@@ -60,7 +61,8 @@ class VotePage extends Component {
             <div style={{ padding: '12.5px' }} key={dataItem.id}>
                 <img src={dataItem.avatar_url} style={{ width: '100px', height: '100px' }} alt="" />
                 <div style={{ color: '#888', fontSize: '14px', marginTop: '12px' }}>
-                    <span>{dataItem.name}</span>
+                    <p><span>{dataItem.name}</span></p>
+                    <p><span>{dataItem.org}</span></p>
                 </div>
                 <br />
                 <div><span style={{ fontSize: '16px', color: '#FF6E27' }}>得票数：{dataItem.counter}</span></div>
@@ -70,13 +72,14 @@ class VotePage extends Component {
             <div>
 
             <NavBar>重庆医生视频大赛投票系统</NavBar>
-            <NoticeBar>点击单个窗口了解视频详情</NoticeBar>
+            <NoticeBar>点击单个窗口了解视频详情，每人每天只能投一票哦</NoticeBar>
 
                 <Grid
                     data={this.state.dataArray}
-                    columnNum={2}
+                    columnNum={3}
                     renderItem={GridItem}
                     onClick={this.onGridClick}
+                    square={false}
                 />
 
                 <Modal
@@ -89,9 +92,11 @@ class VotePage extends Component {
                     className={'web'}
                     // wrapClassName={'web'}
                 >
-                    <div style={{ height: '600px', overflow: 'scroll', width: '100%' }}>
+                    <div style={{ height: '450px', overflow: 'scroll', width: '100%' }}>
                         <h2>{this.state.modalValue.name}</h2>
                         <p>{this.state.modalValue.desc}</p>
+                        <p style={{color: 'blue'}}>(点击图片观看完整视频)</p>
+                        <p><a href={this.state.modalValue.info_url}><img src={this.state.modalValue.avatar_url} alt="" style={{width: '100%'}} /></a></p>
                     </div>
                 </Modal>
             </div>

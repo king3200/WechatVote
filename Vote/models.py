@@ -20,6 +20,7 @@ class VoteEvent(models.Model):
 
 class VotingItem(models.Model):
     name = models.CharField(max_length=64, verbose_name='名称')
+    org = models.CharField(max_length=32, verbose_name='机构名称', blank=True, null=True, default=None)
     avatar_url = models.URLField(verbose_name='头像链接')
     desc = models.TextField(verbose_name='介绍', blank=True, default='')
     add_time = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
@@ -75,3 +76,8 @@ class Voter(models.Model):
     class Meta:
         verbose_name = '投票者'
         verbose_name_plural = '投票者'
+
+
+class WeChatOpenID(models.Model):
+    openid = models.CharField(max_length=64)
+    access_token = models.CharField(max_length=128)

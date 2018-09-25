@@ -23,4 +23,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-.sqlite3
+*.sqlite3
+*.sqlite3.bak
+*.xlsx
+we_settings.py
+excelinput.py
+wsgi_conf.ini
+nginx_conf.conf

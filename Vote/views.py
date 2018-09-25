@@ -1,29 +1,91 @@
+import hashlib
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render_to_response
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView
 from Vote.models import VoteEvent, Voter, VotingItem
 from Vote.serializers import VoteEventSerializer
+from WechatVote import we_settings
+from WechatVote.utils import wx_get_openid
+from WechatVote.we_settings import wx_appID
+
+
+class WXTokenAccess(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, *args, **kwargs):
+        signature = request.GET['signature']
+        timestamp = request.GET['timestamp']
+        nonce = request.GET['nonce']
+        echostr = request.GET['echostr']
+        token = we_settings.wx_token
+
+        access_paras = sorted([token, timestamp, nonce])
+        access_paras_str = ''.join(access_paras)
+        sha1_str = hashlib.sha1(access_paras_str.encode('utf-8')).hexdigest()
+        if sha1_str == signature:
+            return HttpResponse(echostr)
+        else:
+            return Response('微信认证失败', status=status.HTTP_400_BAD_REQUEST)
 
 
 class Index(APIView):
+
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request):
-        return Response('hello world')
-
-
-class VoteIndex(APIView):
-    permission_classes = (permissions.AllowAny, )
-
-    def get(self, request, projid):
         """
         根据项目ID获取投票页面
         :param request:
         :param projid:
         :return:
         """
-        pass
+        url = '''https://open.weixin.qq.com/connect/oauth2/authorize?appid={0}&redirect_uri={1}&response_type=code&scope=snsapi_base&state=123#wechat_redirect
+        '''.format(wx_appID, 'http%3A%2F%2Fxinpqx.natappfree.cc%2Fwx-callback')
+        return HttpResponseRedirect(url)
+
+
+class VoteIndex(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request):
+        # 检查是否关注公众号
+        # if 'openid' in request.session and 'access_token' in request.session:
+        #     if wx_check_subscribe(request.session['openid']):
+        #         return render_to_response('index.html')
+        #     else:
+        #         return render_to_response('error.html', {'msg': '请先关注公众号才能投票哦'})
+        # return render_to_response('error.html', {'msg': '请使用微信公众号进入该页面'})
+        return render_to_response('index.html')
+
+
+class WXCallback(APIView):
+
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request):
+        """
+        微信端用户登录回调
+        :param request:
+        :return:
+        """
+        code = request.GET.get('code', None)
+        if not code:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'detail': '参数错误'})
+        wx_openid_json = wx_get_openid(code)
+        wx_openid = wx_openid_json['openid']
+        wx_access_token = wx_openid_json['access_token']
+
+        #判断是否已关注公众号
+        # if wx_check_subscribe(wx_openid):
+            # 写入session
+        request.session['openid'] = wx_openid
+        request.session['access_token'] = wx_access_token
+        return HttpResponseRedirect('/voteindex')
+        # else:
+        #     return render_to_response('error.html', {'error': '请先关注公众号'})
 
 
 class VoteEventRetrive(RetrieveAPIView):
