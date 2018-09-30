@@ -163,3 +163,5 @@ STATICFILES_DIRS = (
 )
 
 AVATAR_PREFIX = 'p93xafpg4.bkt.clouddn.com'
+
+vote_times = 3 #每日限制投票次数

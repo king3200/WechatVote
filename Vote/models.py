@@ -36,7 +36,7 @@ class VotingItem(models.Model):
     def __str__(self):
         return '<VotingItem # %d:%s>' % (self.id, self.name)
 
-    def vote(self, ip, platform):
+    def vote(self, ip, platform, item=None):
         voters = Voter.objects.filter(ip=ip, event=self.event)
         if not voters.exists():
             voter = Voter(ip=ip, platform=platform, event=self.event)
@@ -66,10 +66,17 @@ class Voter(models.Model):
     ip = models.CharField(max_length=32)
     platform = models.IntegerField(choices=platform_choices)
     vote_time = models.DateTimeField(default=timezone.now, verbose_name='投票时间')
+    vote_count = models.IntegerField(default=1)
+    vote_item = models.ForeignKey(VotingItem, on_delete=models.SET_NULL, related_name='voters', null=True, default=None)
 
     def can_vote(self):
         time_diff = timezone.now().day - self.vote_time.day
         if time_diff >= 1:
+            self.vote_count = 0
+
+        if self.vote_count < 3:
+            self.vote_count += 1
+            self.save()
             return True
         return False
 

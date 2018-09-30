@@ -1,4 +1,5 @@
 import datetime
+import threading
 
 import requests
 from django.utils import timezone
@@ -50,31 +51,46 @@ def wx_get_user_info(access_token, openid):
 
 def wx_check_subscribe(openid):
     token = wx_get_offical_token()
-    print(token)
     res = requests.get(settings.wx_check_subscribe, {
         'access_token': token,
         'openid': openid,
         'lang': 'zh_CN'
     })
-    print(res)
-    return res.json()['subscribe'] != 0
+    res_json = res.json()
 
+    if 'subscribe' not in res_json:
+        print(res_json)
+        return False
+    return res_json['subscribe'] != 0
+
+mutex = threading.Lock()
 
 def wx_get_offical_token():
     expire_time = datetime.timedelta(seconds=7000)
     now = timezone.now()
     if settings.expire_time == None or settings.expire_time + expire_time <= now:
-        print('-------------get-new-------token')
-        app_id = settings.wx_appID
-        secret_id = settings.wx_appsecret
-        res = requests.get(wx_offical_token, {
-            'appid': app_id,
-            'secret': secret_id,
+        if mutex.acquire(5):
+            if settings.expire_time == None or settings.expire_time + expire_time <= now:
+                print('---------------request-new local token-----------------')
+                app_id = settings.wx_appID
+                secret_id = settings.wx_appsecret
+                res = requests.get(wx_offical_token, {
+                    'appid': app_id,
+                    'secret': secret_id,
 
-            'grant_type': 'client_credential'
-        })
-        settings.global_token_cache = res.json()['access_token']
-        settings.expire_time = datetime.datetime.now()
-        return res.json()['access_token']
+                    'grant_type': 'client_credential'
+                })
+                settings.global_token_cache = res.json()['access_token']
+                settings.expire_time = datetime.datetime.now()
+                print('expire_time=%s' % str(settings.expire_time))
+                print(res.json()['access_token'])
+                print('---------------request-new local token-----------------')
+                mutex.release()
+                return res.json()['access_token']
+            else:
+                mutex.release()
+                return settings.global_token_cache
+
+
     else:
         return settings.global_token_cache

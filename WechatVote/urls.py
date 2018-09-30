@@ -31,8 +31,8 @@ urlpatterns = [
     path('retrive/<int:id>', VoteEventRetrive.as_view()),
     path('voting', Voting.as_view()),
     path('voteindex', VoteIndex.as_view()),
-    # path('', Index.as_view()),  不添加关注微信号认证
-    path('', VoteIndex.as_view()),
+    path('', Index.as_view()),
+    # path('', VoteIndex.as_view()),
 ]
 
 if settings.DEBUG:

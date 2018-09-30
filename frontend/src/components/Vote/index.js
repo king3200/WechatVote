@@ -20,7 +20,7 @@ class VotePage extends Component {
     }
 
     componentDidMount() {
-        axios.get('/retrive/3')
+        axios.get('/retrive/1')
             .then(response => response.data)
             .then(data => {
                 this.setState({ projId: data['id'], voteName: data['name'], startDate: data['start_date'], endDate: data['end_date'], dataArray: data['items'] })
@@ -61,8 +61,9 @@ class VotePage extends Component {
             <div style={{ padding: '12.5px' }} key={dataItem.id}>
                 <img src={dataItem.avatar_url} style={{ width: '100px', height: '100px' }} alt="" />
                 <div style={{ color: '#888', fontSize: '14px', marginTop: '12px' }}>
+                    <p>{dataItem.id}</p><hr/>
                     <p><span>{dataItem.name}</span></p>
-                    <p><span>{dataItem.org}</span></p>
+                    <p><span style={{color: 'blue'}}>{dataItem.org}</span></p>
                 </div>
                 <br />
                 <div><span style={{ fontSize: '16px', color: '#FF6E27' }}>得票数：{dataItem.counter}</span></div>
@@ -71,8 +72,8 @@ class VotePage extends Component {
         return (
             <div>
 
-            <NavBar>重庆医生视频大赛投票系统</NavBar>
-            <NoticeBar>点击单个窗口了解视频详情，每人每天只能投一票哦</NoticeBar>
+            <NavBar>医师协会视频投票系统</NavBar>
+            <NoticeBar>点击单个窗口了解视频详情，每人每天能投3票,投票时间9月26日至9月30日</NoticeBar>
 
                 <Grid
                     data={this.state.dataArray}
@@ -93,7 +94,7 @@ class VotePage extends Component {
                     // wrapClassName={'web'}
                 >
                     <div style={{ height: '450px', overflow: 'scroll', width: '100%' }}>
-                        <h2>{this.state.modalValue.name}</h2>
+                        <h2>{this.state.modalValue.id}.{this.state.modalValue.name}</h2>
                         <p>{this.state.modalValue.desc}</p>
                         <p style={{color: 'blue'}}>(点击图片观看完整视频)</p>
                         <p><a href={this.state.modalValue.info_url}><img src={this.state.modalValue.avatar_url} alt="" style={{width: '100%'}} /></a></p>
