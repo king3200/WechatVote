@@ -72,8 +72,8 @@ class VotePage extends Component {
         return (
             <div>
 
-            <NavBar>医师协会视频投票系统</NavBar>
-            <NoticeBar>点击单个窗口了解视频详情，每人每天能投3票,投票时间9月26日至9月30日</NoticeBar>
+            <NavBar>{this.state.voteName}</NavBar>
+            <NoticeBar>点击单个窗口了解视频详情，每人每天能投3票,投票时间10月11日至10月18日</NoticeBar>
 
                 <Grid
                     data={this.state.dataArray}

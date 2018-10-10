@@ -55,14 +55,14 @@ class VoteIndex(APIView):
 
     def get(self, request):
         # 检查是否关注公众号
-        # if 'openid' in request.session and 'access_token' in request.session:
-        #     if wx_check_subscribe(request.session['openid']):
-        #         return render_to_response('index.html')
-        #     else:
-        #         return render_to_response('error.html', {'msg': '请先关注公众号才能投票哦'})
-        # return render_to_response('error.html', {'msg': '请使用微信公众号进入该页面'})
-        request.session['openid'] = 'oJKPqw5vR4FqqZRcjq8c4Uaf9aKo'
-        return render_to_response('index.html')
+        if 'openid' in request.session and 'access_token' in request.session:
+            if wx_check_subscribe(request.session['openid']):
+                return render_to_response('index.html')
+            else:
+                return render_to_response('error.html', {'msg': '请先关注公众号才能投票哦'})
+        return render_to_response('error.html', {'msg': '请使用微信公众号进入该页面'})
+        # request.session['openid'] = 'oJKPqw5vR4FqqZRcjq8c4Uaf9aKo'
+        # return render_to_response('index.html')
 
 
 class WXCallback(APIView):

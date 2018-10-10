@@ -2,6 +2,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import models
 
+import WechatVote
+
 
 class VoteEvent(models.Model):
     name = models.CharField(max_length=128, verbose_name='标题')
@@ -74,7 +76,7 @@ class Voter(models.Model):
         if time_diff >= 1:
             self.vote_count = 0
 
-        if self.vote_count < settings.vote_times:
+        if self.vote_count < WechatVote.settings.vote_times:
             self.vote_count += 1
             self.save()
             return True
