@@ -9,11 +9,12 @@ run.sh
 # testing
 /coverage
 
-Vote/__pycache__/
+/__pycache__
 
 # production
 /build
-frontend/build/
+frontend/build
+migrations
 
 # misc
 .DS_Store
