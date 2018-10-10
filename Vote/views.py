@@ -10,6 +10,7 @@ from Vote.serializers import VoteEventSerializer
 from WechatVote import we_settings, settings
 from WechatVote.utils import wx_get_openid, wx_check_subscribe
 from WechatVote.we_settings import wx_appID
+from urllib.parse import quote
 
 
 class WXTokenAccess(APIView):
@@ -42,8 +43,10 @@ class Index(APIView):
         :param projid:
         :return:
         """
+        callback_url = we_settings.wx_call_back_domain + '/wx-callback'
+
         url = '''https://open.weixin.qq.com/connect/oauth2/authorize?appid={0}&redirect_uri={1}&response_type=code&scope=snsapi_base&state=123#wechat_redirect
-        '''.format(wx_appID, 'http%3A%2F%2Fvote.xinwo.online%2Fwx-callback')
+        '''.format(wx_appID, quote(callback_url, 'utf-8'))
         return HttpResponseRedirect(url)
 
 
@@ -52,14 +55,14 @@ class VoteIndex(APIView):
 
     def get(self, request):
         # 检查是否关注公众号
-        if 'openid' in request.session and 'access_token' in request.session:
-            if wx_check_subscribe(request.session['openid']):
-                return render_to_response('index.html')
-            else:
-                return render_to_response('error.html', {'msg': '请先关注公众号才能投票哦'})
-        return render_to_response('error.html', {'msg': '请使用微信公众号进入该页面'})
-        # request.session['openid'] = 'oJKPqw5vR4FqqZRcjq8c4Uaf9aKo'
-        # return render_to_response('index.html')
+        # if 'openid' in request.session and 'access_token' in request.session:
+        #     if wx_check_subscribe(request.session['openid']):
+        #         return render_to_response('index.html')
+        #     else:
+        #         return render_to_response('error.html', {'msg': '请先关注公众号才能投票哦'})
+        # return render_to_response('error.html', {'msg': '请使用微信公众号进入该页面'})
+        request.session['openid'] = 'oJKPqw5vR4FqqZRcjq8c4Uaf9aKo'
+        return render_to_response('index.html')
 
 
 class WXCallback(APIView):
