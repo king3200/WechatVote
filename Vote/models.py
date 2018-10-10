@@ -74,7 +74,7 @@ class Voter(models.Model):
         if time_diff >= 1:
             self.vote_count = 0
 
-        if self.vote_count < 3:
+        if self.vote_count < settings.vote_times:
             self.vote_count += 1
             self.save()
             return True

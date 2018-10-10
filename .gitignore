@@ -9,8 +9,11 @@ run.sh
 # testing
 /coverage
 
+Vote/__pycache__/
+
 # production
 /build
+frontend/build/
 
 # misc
 .DS_Store
@@ -30,3 +33,4 @@ we_settings.py
 excelinput.py
 wsgi_conf.ini
 nginx_conf.conf
+uwsgi_conf.ini

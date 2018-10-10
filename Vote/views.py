@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView
 from Vote.models import VoteEvent, Voter, VotingItem
 from Vote.serializers import VoteEventSerializer
-from WechatVote import we_settings
+from WechatVote import we_settings, settings
 from WechatVote.utils import wx_get_openid, wx_check_subscribe
 from WechatVote.we_settings import wx_appID
 
@@ -120,7 +120,8 @@ class Voting(APIView):
         # else:
         #     ip = request.META['REMOTE_ADDR']
 
-        request.session['openid'] = 'asdfggg'
+        # test session
+        # request.session['openid'] = 'asdfggg'
 
         if 'openid' not in request.session:
             return Response({'detail': '请使用微信渠道投票'}, status=status.HTTP_400_BAD_REQUEST)
@@ -143,5 +144,5 @@ class Voting(APIView):
         if item in proj.items.all() and item.vote(ip, platform):
             pass
         else:
-            return Response({'detail': '每个用户每天只能投3票'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': '每个用户每天只能投%d票' % settings.vote_times}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
