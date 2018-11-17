@@ -5,10 +5,10 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView
-from Vote.models import VoteEvent, Voter, VotingItem
+from Vote.models import VoteEvent, VotingItem
 from Vote.serializers import VoteEventSerializer
 from WechatVote import we_settings, settings
-from WechatVote.utils import wx_get_openid, wx_check_subscribe
+from WechatVote.utils import wx_get_openid
 from WechatVote.we_settings import wx_appID
 from urllib.parse import quote
 
@@ -47,6 +47,7 @@ class Index(APIView):
 
         url = '''https://open.weixin.qq.com/connect/oauth2/authorize?appid={0}&redirect_uri={1}&response_type=code&scope=snsapi_base&state=123#wechat_redirect
         '''.format(wx_appID, quote(callback_url, 'utf-8'))
+
         return HttpResponseRedirect(url)
 
 
@@ -55,14 +56,14 @@ class VoteIndex(APIView):
 
     def get(self, request):
         # 检查是否关注公众号
-        if 'openid' in request.session and 'access_token' in request.session:
-            if wx_check_subscribe(request.session['openid']):
-                return render_to_response('index.html')
-            else:
-                return render_to_response('error.html', {'msg': '请先关注公众号才能投票哦'})
-        return render_to_response('error.html', {'msg': '请使用微信公众号进入该页面'})
-        # request.session['openid'] = 'oJKPqw5vR4FqqZRcjq8c4Uaf9aKo'
-        # return render_to_response('index.html')
+        # if 'openid' in request.session and 'access_token' in request.session:
+        #     if wx_check_subscribe(request.session['openid']):
+        #         return render_to_response('index.html')
+        #     else:
+        #         return render_to_response('error.html', {'msg': '请先关注公众号才能投票哦'})
+        # return render_to_response('error.html', {'msg': '请使用微信公众号进入该页面'})
+
+        return render_to_response('index.html')
 
 
 class WXCallback(APIView):
@@ -117,19 +118,17 @@ class Voting(APIView):
         if not item_id:
             return Response({'detail': '没有参数'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 使用微信openid记录投票， IP地址太多内网用户了~~~
-        # if 'HTTP_X_FORWARDED_FOR' in request.META:
-        #     ip = request.META['HTTP_X_FORWARDED_FOR']
-        # else:
-        #     ip = request.META['REMOTE_ADDR']
-
-        # test session
-        # request.session['openid'] = 'asdfggg'
-
-        if 'openid' not in request.session:
-            return Response({'detail': '请使用微信渠道投票'}, status=status.HTTP_400_BAD_REQUEST)
-
-        ip = request.session['openid']
+        #使用ip记录投票  or   使用微信openid记录投票
+        if settings.VOTE_IP_MODE:
+            if 'HTTP_X_FORWARDED_FOR' in request.META:
+                ip = request.META['HTTP_X_FORWARDED_FOR']
+            else:
+                ip = request.META['REMOTE_ADDR']
+        else:
+            # 使用微信openid记录投票， IP地址太多内网用户了~~~
+            if 'openid' not in request.session:
+                return Response({'detail': '请使用微信渠道投票'}, status=status.HTTP_400_BAD_REQUEST)
+            ip = request.session['openid']
 
         user_agent = request.META.get('HTTP_USER_AGENT', None)
         platform = 1 if user_agent and 'MicroMessenger' in user_agent else 2
@@ -147,5 +146,10 @@ class Voting(APIView):
         if item in proj.items.all() and item.vote(ip, platform):
             pass
         else:
-            return Response({'detail': '每个用户每天只能投%d票' % settings.vote_times}, status=status.HTTP_400_BAD_REQUEST)
+            if settings.VOTE_RULE == 0:
+                return Response({'detail': '每个用户每天只能投%s票, 只能投给不同的项目哦' % str(settings.VOTE_TIME)},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'detail': '每个用户每天只能投%s票' % str(settings.VOTE_TIME)},
+                                status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)

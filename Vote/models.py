@@ -39,17 +39,37 @@ class VotingItem(models.Model):
         return '<VotingItem # %d:%s>' % (self.id, self.name)
 
     def vote(self, ip, platform, item=None):
-        voters = Voter.objects.filter(ip=ip, event=self.event)
-        if not voters.exists():
-            voter = Voter(ip=ip, platform=platform, event=self.event)
-        else:
-            voter = voters[0]
-            if not voter.can_vote():
+        #判断ip在今天的总票数是否超过限制
+        voter_list = Voter.objects.filter(ip=ip, event=self.event, vote_time__day=timezone.now().day)
+        if voter_list.count() >= settings.VOTE_TIME:
+            return False
+
+        #可以投票：规则0 判断ip在这个项目上是否已投过票
+        if settings.VOTE_RULE == 0:
+            if voter_list.filter(vote_item=self).exists():
                 return False
+            else:
+                Voter.objects.create(ip=ip, platform=platform, event=self.event, vote_item=self,
+                                             vote_count=1, vote_time=timezone.now())
+        #可以投票： 规则1  ip可以把票投给相同项目
+        elif settings.VOTE_RULE == 1:
+            Voter.objects.create(ip=ip, platform=platform, event=self.event, vote_item=self,
+                                         vote_count=1, vote_time=timezone.now())
+        else:
+            print('settings.vote_rule can only be 1 or 2, but now is %s' % str(settings.vote_rule))
+            return False
+
+        # voters = Voter.objects.filter(ip=ip, event=self.event, vote_item=self)
+        # if not voters.exists():
+        #     voter = Voter(ip=ip, platform=platform, event=self.event, vote_item=self)
+        # else:
+        #     voter = voters[0]
+        #     if not voter.can_vote():
+        #         return False
 
         self.counter += 1
-        voter.vote_time = timezone.now()
-        voter.save()
+        # voter.vote_time = timezone.now()
+        # voter.save()
         self.save()
 
         return True

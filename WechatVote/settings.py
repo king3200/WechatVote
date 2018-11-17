@@ -163,5 +163,8 @@ STATICFILES_DIRS = (
 )
 
 
-vote_times = 3 #每日限制投票次数
+VOTE_IP_MODE = True  #True表示使用Ip限制重复投票   False表示使用微信openid限制重复投票
+
+VOTE_RULE = 0   #规则0:只允许将票投给不同的项目   规则1:可以将票投给相同项目
+VOTE_TIME = 3   #每日投票限额
 

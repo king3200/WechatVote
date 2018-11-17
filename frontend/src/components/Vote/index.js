@@ -73,7 +73,7 @@ class VotePage extends Component {
             <div>
 
             <NavBar>{this.state.voteName}</NavBar>
-            <NoticeBar>点击单个窗口了解视频详情，每人每天能投3票,投票时间10月11日至10月18日</NoticeBar>
+            <NoticeBar>点击单个窗口了解视频详情，每人每天能投3票</NoticeBar>
 
                 <Grid
                     data={this.state.dataArray}
